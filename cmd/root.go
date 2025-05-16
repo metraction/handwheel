@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"net/http"
 	"os"
 	"strings"
 
+	"github.com/Tiktai/handler/integrations"
 	"github.com/Tiktai/handler/model"
 
 	"github.com/spf13/cobra"
@@ -26,10 +26,11 @@ var rootCmd = &cobra.Command{
 	Short: "Backend for mentor mate",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Starting HTTP server on :8080 ...")
-		if err := http.ListenAndServe(":8080", nil); err != nil {
-			log.Fatalf("Failed to start server: %v", err)
-		}
+		// Start Prometheus fetcher in the background
+		go integrations.FetchAndSubmitPeriodically(config)
+
+		fmt.Println("Started handler.")
+		select {}
 	},
 }
 
@@ -53,7 +54,7 @@ func initConfig() {
 
 		// Search config in home directory with name ".mx" (without extension).
 		viper.AddConfigPath(home)
-		viper.SetConfigName(".mentor-mate")
+		viper.SetConfigName(".image-handler")
 	}
 	viper.AutomaticEnv() // read in environment variables that match
 
