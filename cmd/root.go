@@ -10,8 +10,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Tiktai/handler/integrations"
 	"github.com/Tiktai/handler/model"
+	"github.com/Tiktai/handler/routing"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -27,8 +27,7 @@ var rootCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Start Prometheus fetcher in the background
-		go integrations.FetchAndSubmitPeriodically(config)
-
+		routing.ProtheusCraneDevLakeRouter(config)
 		fmt.Println("Started handler.")
 		select {}
 	},

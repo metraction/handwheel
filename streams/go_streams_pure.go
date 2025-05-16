@@ -1,11 +1,12 @@
 package streams
 
 import (
+	"github.com/Tiktai/handler/model"
 	"github.com/reugn/go-streams/flow"
 )
 
 // ProcessImage creates a stream that maps ImageMetric to Image using FlowMap and Via
-func ProcessImage(metrics []ImageMetric) []Image {
+func ProcessImage(metrics []model.ImageMetric) []model.Image {
 
 	mapper := flow.NewMap(
 		imageMetricToImage,
@@ -20,9 +21,9 @@ func ProcessImage(metrics []ImageMetric) []Image {
 	}()
 
 	outCh := mapper.Out()
-	var images []Image
+	var images []model.Image
 	for img := range outCh {
-		images = append(images, img.(Image))
+		images = append(images, img.(model.Image))
 	}
 	return images
 }

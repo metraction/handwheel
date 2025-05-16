@@ -3,9 +3,10 @@ package streams
 import (
 	"fmt"
 	"github.com/reugn/go-streams/flow"
+	"github.com/Tiktai/handler/model"
 )
 
-func ErrorRouter(metrics ImageMetric) Image {
+func ErrorRouter(metrics model.ImageMetric) model.Image {
 
 	mapper := flow.NewMap(
 		imageMetricToImageWithError,
@@ -24,7 +25,7 @@ func ErrorRouter(metrics ImageMetric) Image {
 	}
 	if imgWithErr.Err != nil {
 		fmt.Printf("Error in ImageMetricToImageWithError: %v\n", imgWithErr.Err)
-		return Image{}
+		return model.Image{}
 	}
 	return imgWithErr.Image
 }

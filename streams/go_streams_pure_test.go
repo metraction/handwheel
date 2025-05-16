@@ -3,13 +3,15 @@ package streams
 import (
 	"strconv"
 	"testing"
+
+	"github.com/Tiktai/handler/model"
 )
 
 func TestProcessImage(t *testing.T) {
 	// Generate batches of ImageMetrics
-	metrics := []ImageMetric{}
+	metrics := []model.ImageMetric{}
 	for i := 0; i < 10; i++ {
-		metrics = append(metrics, ImageMetric{Sha: strconv.Itoa(i)})
+		metrics = append(metrics, model.ImageMetric{Sha: strconv.Itoa(i)})
 	}
 
 	images := ProcessImage(metrics)

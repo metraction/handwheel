@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/Tiktai/handler/model"
-	"github.com/Tiktai/handler/streams"
 )
 
 // PrometheusResponse is a minimal struct for parsing Prometheus API responses
@@ -26,7 +25,7 @@ type PrometheusResponse struct {
 }
 
 // FetchAndSubmitPeriodically fetches kube_pod_container_info and submits ImageMetrics to the stream
-func FetchAndSubmitPeriodically(cfg *model.Config) {
+func FetchAndSubmitPeriodically(cfg *model.Config) chan any {
 	promURL := cfg.Prometheus.URL
 	interval, err := time.ParseDuration(cfg.Prometheus.Interval)
 	if err != nil {
@@ -38,33 +37,24 @@ func FetchAndSubmitPeriodically(cfg *model.Config) {
 		log.Printf("Invalid prometheus.batch_size in config: %d, defaulting to 10", batchSize)
 		batchSize = 10
 	}
-	ticker := time.NewTicker(interval)
-	defer ticker.Stop()
-
-	for {
-		log.Println("Fetching metrics.")
-		<-ticker.C
-		metrics, err := fetchImageMetrics(promURL)
-		if err != nil {
-			log.Printf("Error fetching metrics: %v", err)
-			continue
-		}
-		// Batch submission, adjust as needed
-		for i := 0; i < len(metrics); i += batchSize {
-			end := i + batchSize
-			if end > len(metrics) {
-				end = len(metrics)
+	outChan := make(chan any)
+	go func() {
+		for {
+			ticker := time.NewTicker(interval)
+			<-ticker.C
+			log.Println("Fetching metrics.")
+			metrics, err := fetchImageMetrics(promURL)
+			if err != nil {
+				log.Printf("Error fetching metrics: %v", err)
+				continue
 			}
-			batch := metrics[i:end]
-			// Submit to your go-stream batch processor
-			go func(batch []streams.ImageMetric) {
-				_ = streams.ProcessImage(batch) // or AugmentImages(batch) or your custom logic
-			}(batch)
+			outChan <- metrics
 		}
-	}
+	}()
+	return outChan
 }
 
-func fetchImageMetrics(promURL string) ([]streams.ImageMetric, error) {
+func fetchImageMetrics(promURL string) ([]model.ImageMetric, error) {
 	// Example: http://localhost:9090/api/v1/query?query=kube_pod_container_info
 	url := fmt.Sprintf("%s/api/v1/query?query=kube_pod_container_info", promURL)
 	resp, err := http.Get(url)
@@ -80,14 +70,14 @@ func fetchImageMetrics(promURL string) ([]streams.ImageMetric, error) {
 	if err := json.Unmarshal(body, &promResp); err != nil {
 		return nil, err
 	}
-	var metrics []streams.ImageMetric
+	var metrics []model.ImageMetric
 	for _, r := range promResp.Data.Result {
 		sha := r.Metric["container_id"]
 		if sha == "" {
 			sha = r.Metric["pod"] // fallback, adjust as needed
 		}
 		if sha != "" {
-			metrics = append(metrics, streams.ImageMetric{Sha: sha})
+			metrics = append(metrics, model.ImageMetric{Sha: sha})
 		}
 	}
 	return metrics, nil

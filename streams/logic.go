@@ -1,30 +1,25 @@
 package streams
 
-import "fmt"
+import (
+	"fmt"
 
-// Input steam
-type ImageMetric struct {
-	Sha string
-}
-
-type Image struct {
-	Sha  string
-	Name string
-}
+	"github.com/Tiktai/handler/model"
+)
 
 // imageMetricToImage maps an ImageMetric to an Image for use in the stream
-func imageMetricToImage(elem ImageMetric) Image {
-	return Image{Sha: elem.Sha, Name: "img-" + elem.Sha}
+
+func imageMetricToImage(elem model.ImageMetric) model.Image {
+	return model.Image{Sha: elem.Sha, Name: "img-" + elem.Sha}
 }
 
 type ImageWithError struct {
-	Image Image
+	Image model.Image
 	Err   error
 }
 
-func imageMetricToImageWithError(elem ImageMetric) ImageWithError {
+func imageMetricToImageWithError(elem model.ImageMetric) ImageWithError {
 	if elem.Sha == "" {
 		return ImageWithError{Err: fmt.Errorf("ImageMetric.Sha is empty")}
 	}
-	return ImageWithError{Image: Image{Sha: elem.Sha, Name: "img-" + elem.Sha}}
+	return ImageWithError{Image: model.Image{Sha: elem.Sha, Name: "img-" + elem.Sha}}
 }
