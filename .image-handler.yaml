@@ -1,0 +1,4 @@
+prometheus:
+    url: http://localhost:9090
+    interval: 5s
+    batch_size: 10
