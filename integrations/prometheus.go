@@ -72,7 +72,7 @@ func fetchImageMetrics(promURL string) ([]model.ImageMetric, error) {
 	}
 	var metrics []model.ImageMetric
 	for _, r := range promResp.Data.Result {
-		sha := r.Metric["container_id"]
+		sha := r.Metric["image_id"]
 		if sha == "" {
 			sha = r.Metric["pod"] // fallback, adjust as needed
 		}
