@@ -4,7 +4,7 @@
 # Handler Project
 
 Handler tracks images reaching deployment environments and reports those events to devlake. This allows seamless repoting on dora metics.
-![Handler](docs/context.excalidraw.png)
+<img src="docs/context.excalidraw.png" width="75%"/>
 ## Project Structure
 
 - `cmd/` - Main application entry point(s)
