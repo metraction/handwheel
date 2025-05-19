@@ -11,7 +11,13 @@ type CraneConfig struct {
 	RegistryPassword string   `mapstructure:"registry_password"`
 }
 
+// HttpServerConfig holds configuration for the HTTP server (e.g., for health probes)
+type HttpServerConfig struct {
+	Port string `mapstructure:"port"`
+}
+
 type Config struct {
 	Prometheus PrometheusConfig `mapstructure:"prometheus"`
 	Crane      CraneConfig      `mapstructure:"crane"`
+	HttpServer HttpServerConfig `mapstructure:"httpServer"`
 }

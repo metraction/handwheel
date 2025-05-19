@@ -7,3 +7,5 @@ crane:
     - registry.enpace.local\/tiktai\/handler.*
     registry_username: "$ENPACE_REGISTRY_USERNAME"
     registry_password: "$ENPACE_REGISTRY_PASSWORD"    
+httpServer:
+    port: 8081

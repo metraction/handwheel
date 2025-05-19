@@ -1,5 +1,5 @@
 /*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
+Copyright 2025 NAME HERE EMAIL ADDRESS
 */
 package cmd
 
@@ -28,6 +28,15 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		// Start Prometheus fetcher in the background
 		routing.ProtheusCraneDevLakeRouter(config)
+
+		// Start health and readiness probe server
+		healthServerPort := config.HttpServer.Port
+		if healthServerPort == "" {
+			healthServerPort = "8081"
+			log.Printf("Health server port not set in config, defaulting to %s", healthServerPort)
+		}
+		go routing.StartHealthServer(healthServerPort)
+
 		fmt.Println("Started handler.")
 		select {}
 	},

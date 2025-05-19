@@ -32,6 +32,11 @@ spec:
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        - name: image-handler-config
+          configMap:
+            name: {{ include "handler.fullname" . }}-config
+
       containers:
         - name: {{ .Chart.Name }}
           {{- with .Values.securityContext }}
@@ -44,6 +49,13 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
+            - name: health
+              containerPort: {{ .Values.httpPort }} # Port for liveness/readiness probes
+              protocol: TCP
+          volumeMounts:
+            - name: image-handler-config
+              mountPath: /app/.image-handler.yaml
+              subPath: .image-handler.yaml
           env:
           - name: ENPACE_REGISTRY_USERNAME
             valueFrom:
@@ -55,14 +67,18 @@ spec:
               secretKeyRef:
                 name: enpace-registry-secret
                 key: ENPACE_REGISTRY_PASSWORD
-          {{- with .Values.livenessProbe }}
           livenessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.readinessProbe }}
+            httpGet:
+              path: /livez
+              port: {{ .Values.httpPort }}
+            initialDelaySeconds: 15
+            periodSeconds: 20
           readinessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
+            httpGet:
+              path: /readyz
+              port: {{ .Values.httpPort }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
           {{- with .Values.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
