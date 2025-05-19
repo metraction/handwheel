@@ -1,4 +1,3 @@
 prometheus:
     url: http://localhost:9090
     interval: 1s
-    batch_size: 10

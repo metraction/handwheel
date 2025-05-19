@@ -1,6 +1,5 @@
 package model
 
-// Input steam
 type ImageMetric struct {
 	Sha string
 }
