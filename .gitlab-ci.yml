@@ -1,0 +1,38 @@
+stages:
+  - build
+  - push
+
+variables:
+  IMAGE_NAME: "registry.enpace.local/tiktai/handler"
+  IMAGE_TAG: "${CI_COMMIT_REF_SLUG}"
+
+# Use Docker-in-Docker
+services:
+  - docker:dind
+
+before_script:
+  - docker info
+
+build-image:
+  stage: build
+  image: docker:latest
+  script:
+    - docker build -t $IMAGE_NAME:$IMAGE_TAG .
+    - docker images
+  artifacts:
+    paths:
+      - dora-handler
+    expire_in: 1 hour
+  only:
+    - branches
+
+push-image:
+  stage: push
+  image: docker:latest
+  script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login registry.enpace.local -u "$CI_REGISTRY_USER" --password-stdin
+    - docker push $IMAGE_NAME:$IMAGE_TAG
+  only:
+    - branches
+  dependencies:
+    - build-image

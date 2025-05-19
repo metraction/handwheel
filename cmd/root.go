@@ -26,9 +26,6 @@ var rootCmd = &cobra.Command{
 	Short: "Backend for mentor mate",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		// Start Prometheus fetcher in the background
-		routing.ProtheusCraneDevLakeRouter(config)
-
 		// Start health and readiness probe server
 		healthServerPort := config.HttpServer.Port
 		if healthServerPort == "" {
@@ -37,7 +34,10 @@ var rootCmd = &cobra.Command{
 		}
 		go routing.StartHealthServer(healthServerPort)
 
-		fmt.Println("Started handler.")
+		// Start Prometheus fetcher in the background
+		routing.ProtheusCraneDevLakeRouter(config)
+
+		fmt.Println("Started handler and http server.")
 		select {}
 	},
 }
