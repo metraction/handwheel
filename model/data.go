@@ -8,3 +8,8 @@ type Image struct {
 	Sha  string
 	Name string
 }
+
+type OutputWithError struct {
+	Result any
+	Err    error
+}

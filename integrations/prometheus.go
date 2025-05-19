@@ -27,12 +27,7 @@ type PrometheusResponse struct {
 	} `json:"data"`
 }
 
-type OutputWithError struct {
-	Result any
-	Err    error
-}
-
-func PrometheusResult(o OutputWithError) []model.ImageMetric {
+func PrometheusResult(o model.OutputWithError) []model.ImageMetric {
 	return o.Result.([]model.ImageMetric)
 }
 
@@ -42,22 +37,22 @@ func NewPrometheusIntegration(cfg *model.Config) *PrometheusIntegration {
 	}
 }
 
-func (integration PrometheusIntegration) FetchImageMetrics(_ any) OutputWithError {
+func (integration PrometheusIntegration) FetchImageMetrics(_ any) model.OutputWithError {
 	log.Println("Fetching metrics.")
 	// Example: http://localhost:9090/api/v1/query?query=kube_pod_container_info
 	url := fmt.Sprintf("%s/api/v1/query?query=kube_pod_container_info", integration.config.URL)
 	resp, err := http.Get(url)
 	if err != nil {
-		return OutputWithError{Err: err}
+		return model.OutputWithError{Err: err}
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return OutputWithError{Err: err}
+		return model.OutputWithError{Err: err}
 	}
 	var promResp PrometheusResponse
 	if err := json.Unmarshal(body, &promResp); err != nil {
-		return OutputWithError{Err: err}
+		return model.OutputWithError{Err: err}
 	}
 	var metrics []model.ImageMetric
 	for _, r := range promResp.Data.Result {
@@ -69,5 +64,5 @@ func (integration PrometheusIntegration) FetchImageMetrics(_ any) OutputWithErro
 			metrics = append(metrics, model.ImageMetric{Sha: sha})
 		}
 	}
-	return OutputWithError{Result: metrics}
+	return model.OutputWithError{Result: metrics}
 }
