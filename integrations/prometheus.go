@@ -28,7 +28,12 @@ type PrometheusResponse struct {
 }
 
 func PrometheusResult(o model.OutputWithError) []model.ImageMetric {
-	return o.Result.([]model.ImageMetric)
+	if o.Err != nil {
+		log.Println("Error fetching metrics:", o.Err)
+		return nil
+	} else {
+		return o.Result.([]model.ImageMetric)
+	}
 }
 
 func NewPrometheusIntegration(cfg *model.Config) *PrometheusIntegration {
