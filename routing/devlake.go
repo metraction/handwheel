@@ -23,7 +23,6 @@ func NewTicker(period time.Duration) chan any {
 }
 
 func ProtheusCraneDevLakeRouter(cfg *model.Config) {
-	prometheusIntegration := integrations.NewPrometheusIntegration(cfg)
 
 	interval, err := time.ParseDuration(cfg.Prometheus.Interval)
 	if err != nil {
@@ -34,9 +33,13 @@ func ProtheusCraneDevLakeRouter(cfg *model.Config) {
 	source := ext.NewChanSource(NewTicker(interval))
 	sink := ext.NewStdoutSink()
 
+	prometheusIntegration := integrations.NewPrometheusIntegration(cfg)
+	craneIntegration := integrations.NewCraneIntegration(cfg.Crane)
+
 	source.
 		Via(flow.NewMap(prometheusIntegration.FetchImageMetrics, 1)).
 		Via(flow.NewFlatMap(integrations.PrometheusResult, 1)).
-		Via(flow.NewMap(integrations.CraneRetrieveLabels, 1)).
+		Via(flow.NewFilter(craneIntegration.WhiteListImages(), 1)).
+		Via(flow.NewMap(craneIntegration.CraneRetrieveLabels, 1)).
 		To(sink)
 }

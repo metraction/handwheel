@@ -61,12 +61,12 @@ func (integration PrometheusIntegration) FetchImageMetrics(_ any) model.OutputWi
 	}
 	var metrics []model.ImageMetric
 	for _, r := range promResp.Data.Result {
-		sha := r.Metric["image_id"]
-		if sha == "" {
-			sha = r.Metric["pod"] // fallback, adjust as needed
+		image_spec := r.Metric["image_spec"]
+		if image_spec == "" {
+			image_spec = r.Metric["pod"] // fallback, adjust as needed
 		}
-		if sha != "" {
-			metrics = append(metrics, model.ImageMetric{Sha: sha})
+		if image_spec != "" {
+			metrics = append(metrics, model.ImageMetric{Image_spec: image_spec})
 		}
 	}
 	return model.OutputWithError{Result: metrics}

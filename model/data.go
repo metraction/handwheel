@@ -1,12 +1,12 @@
 package model
 
 type ImageMetric struct {
-	Sha string
+	Image_spec string
 }
 
 type Image struct {
-	Sha  string
-	Name string
+	Image_spec string
+	Labels     map[string]string
 }
 
 type OutputWithError struct {

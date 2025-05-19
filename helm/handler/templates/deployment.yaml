@@ -44,6 +44,17 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
+          env:
+          - name: ENPACE_REGISTRY_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: enpace-registry-secret
+                key: ENPACE_REGISTRY_USERNAME
+          - name: ENPACE_REGISTRY_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: enpace-registry-secret
+                key: ENPACE_REGISTRY_PASSWORD
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
