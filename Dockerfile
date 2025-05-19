@@ -33,5 +33,10 @@ EXPOSE 8080
 # Set environment variable for config file path (optional, can be overridden)
 ENV CONFIG=./.image-handler.yaml
 
+# Add root CA certificate - TODO: remove when we have our own registry
+RUN apk add --no-cache ca-certificates
+COPY files/root-ca.crt /usr/local/share/ca-certificates/
+RUN update-ca-certificates
+
 # Run the binary
 CMD ["./dora-handler", "--config", "/app/.image-handler.yaml"]
