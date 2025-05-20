@@ -2,6 +2,11 @@ prometheus:
     url: https://prometheus.enpace.local
     # url: http://localhost:9090
     interval: 1s
+    #ca_root_file: /Users/marijus/Work/Tiktai/handler/.image-handler.yaml
+    # ca_root_pem: |
+    #     -----BEGIN CERTIFICATE-----
+        
+    #     -----END CERTIFICATE-----
 crane:
     images_whitelist: 
     - registry.enpace.local\/tiktai\/handler.*

@@ -3,6 +3,8 @@ package model
 type PrometheusConfig struct {
 	URL      string `mapstructure:"url"`
 	Interval string `mapstructure:"interval"`
+	CAFile   string `mapstructure:"ca_root_file"`
+	CARootPEM string `mapstructure:"ca_root_pem"`
 }
 
 type CraneConfig struct {

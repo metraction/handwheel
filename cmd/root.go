@@ -60,8 +60,9 @@ func initConfig() {
 		home, err := os.UserHomeDir()
 		cobra.CheckErr(err)
 
-		// Search config in home directory with name ".mx" (without extension).
+		// Search config in home directory with name ".image-handler" (without extension).
 		viper.AddConfigPath(home)
+		viper.AddConfigPath(".") // Add current directory to config search path
 		viper.SetConfigName(".image-handler")
 	}
 	viper.AutomaticEnv() // read in environment variables that match
@@ -69,7 +70,7 @@ func initConfig() {
 	// Open config file for ENV variables substitution
 	file, err := os.Open(viper.ConfigFileUsed())
 	if err != nil {
-		log.Fatal("No config file found", err)
+		log.Fatal("No config file found ", err)
 		config = &model.Config{}
 	}
 	defer file.Close()
@@ -83,7 +84,7 @@ func initConfig() {
 	if err := viper.ReadConfig(myReader); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	} else {
-		fmt.Println("No config file found")
+		fmt.Println("Error loading config", err)
 		config = &model.Config{}
 	}
 

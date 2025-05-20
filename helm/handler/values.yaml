@@ -1,5 +1,9 @@
 prometheus: 
   fetchInterval: 5m
+  ca_root_pem: |
+    -----BEGIN CERTIFICATE-----
+    
+    -----END CERTIFICATE-----
 
 # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
 replicaCount: 1
