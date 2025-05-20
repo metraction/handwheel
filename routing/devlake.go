@@ -15,8 +15,8 @@ func NewTicker(period time.Duration) chan any {
 	ticker := time.NewTicker(period)
 	go func() {
 		for {
-			<-ticker.C
 			outChan <- ""
+			<-ticker.C
 		}
 	}()
 	return outChan

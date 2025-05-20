@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/Tiktai/handler/model"
 )
@@ -40,56 +41,85 @@ func PrometheusResult(o model.OutputWithError) []model.ImageMetric {
 	}
 }
 
-func NewPrometheusIntegration(cfg *model.Config) *PrometheusIntegration {
-	pi := &PrometheusIntegration{
-		config: cfg.Prometheus,
+// normalizePEM reformats a PEM string to ensure proper newlines after header, before footer, and every 64 chars in base64 body.
+// Added for argocd pecularities
+func normalizePEM(pemBytes []byte) []byte {
+	pemStr := string(pemBytes)
+	header := "-----BEGIN CERTIFICATE-----"
+	footer := "-----END CERTIFICATE-----"
+	pemStr = strings.TrimSpace(pemStr)
+	if strings.Contains(pemStr, header) && strings.Contains(pemStr, footer) {
+		headIdx := strings.Index(pemStr, header)
+		footIdx := strings.Index(pemStr, footer)
+		if headIdx != -1 && footIdx != -1 {
+			// Extract header, base64, footer
+			head := header
+			foot := footer
+			base := pemStr[headIdx+len(header) : footIdx]
+			base = strings.ReplaceAll(base, "\n", " ")
+			base = strings.ReplaceAll(base, "\r", " ")
+			base = strings.ReplaceAll(base, " ", "")
+			// Insert newlines every 64 chars
+			var lines []string
+			for i := 0; i < len(base); i += 64 {
+				end := i + 64
+				if end > len(base) {
+					end = len(base)
+				}
+				lines = append(lines, base[i:end])
+			}
+			return []byte(head + "\n" + strings.Join(lines, "\n") + "\n" + foot + "\n")
+		}
 	}
+	return pemBytes
+}
 
+func NewPrometheusIntegration(cfg *model.Config) *PrometheusIntegration {
 	var caCertPool *x509.CertPool
 	var err error
-	if pi.config.CAFile != "" {
-		log.Println("Using CA root file.", pi.config.CAFile)
-		pem, err := os.ReadFile(pi.config.CAFile)
-		if err != nil {
-			log.Printf("failed to read CA root: %v", err)
-			pi.httpClient = http.DefaultClient
-			return pi
-		}
-		caCertPool, err = x509.SystemCertPool()
-		if err != nil {
-			log.Printf("failed to load system cert pool: %v", err)
-			pi.httpClient = http.DefaultClient
-			return pi
-		}
-		if !caCertPool.AppendCertsFromPEM(pem) {
-			log.Printf("failed to append CA root cert")
-			pi.httpClient = http.DefaultClient
-			return pi
-		}
-	} else if pi.config.CARootPEM != "" {
-		log.Println("Using CA root PEM.")
-		caCertPool, err = x509.SystemCertPool()
-		if err != nil {
-			log.Printf("failed to load system cert pool: %v", err)
-			pi.httpClient = http.DefaultClient
-			return pi
-		}
-		if !caCertPool.AppendCertsFromPEM([]byte(pi.config.CARootPEM)) {
-			log.Printf("failed to append CA root cert")
-			pi.httpClient = http.DefaultClient
-			return pi
-		}
+	caCertPool, err = x509.SystemCertPool()
+	if err != nil {
+		log.Printf("failed to load system cert pool: %v", err)
 	}
 
-	if caCertPool != nil {
+	if cfg.Prometheus.CAFile != "" {
+		func() {
+			log.Println("Using CA root file.", cfg.Prometheus.CAFile)
+			pem, err := os.ReadFile(cfg.Prometheus.CAFile)
+			if err != nil {
+				log.Printf("failed to read CA root: %v", err)
+				return
+			}
+			if !caCertPool.AppendCertsFromPEM(pem) {
+				log.Printf("failed to append CA root cert")
+				return
+			}
+		}()
+	} else if cfg.Prometheus.CARootPEM != "" {
+		func() {
+			log.Println("Using CA root PEM.")
+			pemBytes := normalizePEM([]byte(cfg.Prometheus.CARootPEM))
+			if !caCertPool.AppendCertsFromPEM(pemBytes) {
+				log.Printf("failed to append CA root cert")
+				return
+			}
+		}()
+	}
+	var client *http.Client
+	if caCertPool == nil {
+
 		tr := &http.Transport{
 			TLSClientConfig: &tls.Config{RootCAs: caCertPool},
 		}
-		pi.httpClient = &http.Client{Transport: tr}
+		client = &http.Client{Transport: tr}
 	} else {
-		pi.httpClient = http.DefaultClient
+		client = &http.Client{}
 	}
-	return pi
+
+	return &PrometheusIntegration{
+		config:     cfg.Prometheus,
+		httpClient: client,
+	}
 }
 
 func (integration PrometheusIntegration) FetchImageMetrics(_ any) model.OutputWithError {

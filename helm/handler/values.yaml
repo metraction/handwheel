@@ -1,9 +1,9 @@
 prometheus: 
   fetchInterval: 5m
-  ca_root_pem: |
-    -----BEGIN CERTIFICATE-----
+  # ca_root_pem: |
+  #   -----BEGIN CERTIFICATE-----
     
-    -----END CERTIFICATE-----
+  #   -----END CERTIFICATE-----
 
 # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
 replicaCount: 1
@@ -91,7 +91,6 @@ resources: {}
   # requests:
   #   cpu: 100m
   #   memory: 128Mi
-
 
 # Additional volumes on the output Deployment definition.
 volumes: []
