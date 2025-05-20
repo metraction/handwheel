@@ -96,17 +96,19 @@ func NewPrometheusIntegration(cfg *model.Config) *PrometheusIntegration {
 			}
 		}()
 	} else if cfg.Prometheus.CARootPEM != "" {
-		func() {
-			log.Println("Using CA root PEM.")
-			pemBytes := normalizePEM([]byte(cfg.Prometheus.CARootPEM))
-			if !caCertPool.AppendCertsFromPEM(pemBytes) {
-				log.Printf("failed to append CA root cert")
-				return
-			}
-		}()
+		log.Println("Using CA root PEM.")
+		pemBytes := normalizePEM([]byte(cfg.Prometheus.CARootPEM))
+		if !caCertPool.AppendCertsFromPEM(pemBytes) {
+			log.Printf("failed to append CA root cert")
+		}
 	}
 	var client *http.Client
-	if caCertPool == nil {
+
+	if caCertPool != nil {
+		log.Println("CA root certs:")
+		for _, cert := range caCertPool.Subjects() {
+			log.Printf("- %s", cert)
+		}
 
 		tr := &http.Transport{
 			TLSClientConfig: &tls.Config{RootCAs: caCertPool},
