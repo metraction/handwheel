@@ -8,6 +8,8 @@ data:
         url: https://prometheus.enpace.local
         # url: http://localhost:9090
         interval: {{ .Values.prometheus.fetchInterval }}
+        ca_root_pem: |
+            {{ .Values.prometheus.ca_root_pem }}
     crane:
         images_whitelist: 
         - registry.enpace.local\/tiktai\/handler.*
