@@ -11,7 +11,7 @@ import (
 )
 
 type CraneIntegration struct {
-	config     model.CraneConfig
+	config     *model.Config
 	remoteOpts []remote.Option
 }
 
@@ -25,14 +25,18 @@ func NewCraneIntegration(cfg *model.Config) *CraneIntegration {
 		opts = append(opts, remote.WithAuth(auth))
 	}
 	opts = append(opts, remote.WithTransport(NewHttpTransport(cfg)))
-	return &CraneIntegration{config: cfg.Crane, remoteOpts: opts}
+	return &CraneIntegration{config: cfg, remoteOpts: opts}
 }
 
 func (ci *CraneIntegration) WhiteListImages() func(elem model.ImageMetric) bool {
+	// Collect all patterns from devlake.projects.images
+	var patterns []string
+	for _, project := range ci.config.DevLake.Projects {
+		patterns = append(patterns, project.Images...)
+	}
 	return func(elem model.ImageMetric) bool {
-		// Check whitelist
 		matched := false
-		for _, pattern := range ci.config.Images_whitelist {
+		for _, pattern := range patterns {
 			re, err := regexp.Compile(pattern)
 			if err != nil {
 				log.Printf("invalid whitelist regexp: %s: %v", pattern, err)

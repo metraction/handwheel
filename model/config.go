@@ -16,10 +16,20 @@ type HttpServerConfig struct {
 	Port string `mapstructure:"port"`
 }
 
+type DevLakeConfig struct {
+	URL      string `mapstructure:"url"`
+	Token    string `mapstructure:"token"`
+	Projects []struct {
+		ConnectionID int      `mapstructure:"connection_id"`
+		Images       []string `mapstructure:"images"`
+	} `mapstructure:"projects"`
+}
+
 type Config struct {
 	Prometheus PrometheusConfig `mapstructure:"prometheus"`
 	Crane      CraneConfig      `mapstructure:"crane"`
 	HttpServer HttpServerConfig `mapstructure:"httpServer"`
 	CARootPEM  string           `mapstructure:"ca_root_pem"`
 	CAFile     string           `mapstructure:"ca_root_file"`
+	DevLake    DevLakeConfig    `mapstructure:"devlake"`
 }

@@ -11,10 +11,17 @@ data:
         # url: http://localhost:9090
         interval: {{ .Values.prometheus.fetchInterval }}
     crane:
-        images_whitelist: 
-        - registry.enpace.local\/tiktai\/handler.*
         registry_username: "$ENPACE_REGISTRY_USERNAME"
         registry_password: "$ENPACE_REGISTRY_PASSWORD"    
     httpServer:
         port: {{ .Values.httpPort }}
-
+    devlake:
+        url: https://devlake-ui.devlake:4000
+        token: "$DEVLAKE_TOKEN"
+        projects: 
+        - connection_id: 2
+          images:     
+            - ghcr.io\/tiktai\/dora-badge.*
+        - connection_id: 3
+          images:     
+            - registry.enpace.local\/tiktai\/handler.*
