@@ -1,0 +1,18 @@
+name: Build with ko
+
+on:
+  push:
+    branches: 
+    - main
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  ko-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ko-build/setup-ko@v0.9
+      - name: Build image with ko
+        run: |
+          ko build --sbom=none --platform=linux/amd64 --tags=latest --image-label="repo_url=${{ github.event.repository.html_url }},commit_sha=${{ github.sha }}"

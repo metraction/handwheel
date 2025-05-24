@@ -11,28 +11,44 @@ import (
 )
 
 type CraneIntegration struct {
-	config     model.CraneConfig
+	config     *model.Config
 	remoteOpts []remote.Option
+}
+
+type MultiRegistryKeychain struct {
+	cfg *model.Config
+}
+
+func (kc *MultiRegistryKeychain) Resolve(resource authn.Resource) (authn.Authenticator, error) {
+	for _, reg := range kc.cfg.Crane.Registries {
+		if reg.Registry == resource.RegistryStr() {
+			return &authn.Basic{
+				Username: reg.Username,
+				Password: reg.Password,
+			}, nil
+		}
+	}
+	return authn.Anonymous, nil
 }
 
 func NewCraneIntegration(cfg *model.Config) *CraneIntegration {
 	var opts []remote.Option
-	if cfg.Crane.RegistryUsername != "" && cfg.Crane.RegistryPassword != "" {
-		auth := &authn.Basic{
-			Username: cfg.Crane.RegistryUsername,
-			Password: cfg.Crane.RegistryPassword,
-		}
-		opts = append(opts, remote.WithAuth(auth))
-	}
+	// Add transport option
 	opts = append(opts, remote.WithTransport(NewHttpTransport(cfg)))
-	return &CraneIntegration{config: cfg.Crane, remoteOpts: opts}
+	opts = append(opts, remote.WithAuthFromKeychain(&MultiRegistryKeychain{cfg}))
+	return &CraneIntegration{config: cfg, remoteOpts: opts}
 }
 
+
 func (ci *CraneIntegration) WhiteListImages() func(elem model.ImageMetric) bool {
+	// Collect all patterns from devlake.projects.images
+	var patterns []string
+	for _, project := range ci.config.DevLake.Projects {
+		patterns = append(patterns, project.Images...)
+	}
 	return func(elem model.ImageMetric) bool {
-		// Check whitelist
 		matched := false
-		for _, pattern := range ci.config.Images_whitelist {
+		for _, pattern := range patterns {
 			re, err := regexp.Compile(pattern)
 			if err != nil {
 				log.Printf("invalid whitelist regexp: %s: %v", pattern, err)

@@ -35,11 +35,17 @@ func ProtheusCraneDevLakeRouter(cfg *model.Config) {
 
 	prometheusIntegration := integrations.NewPrometheusIntegration(cfg)
 	craneIntegration := integrations.NewCraneIntegration(cfg)
-
+	devlakeIntegration := integrations.NewDevLakeIntegration(cfg)
+	seenImages := integrations.NewDedup()
+	/*
+		TODO: detect image change which happened when application was not working
+	*/
 	source.
 		Via(flow.NewMap(prometheusIntegration.FetchImageMetrics, 1)).
 		Via(flow.NewFlatMap(integrations.PrometheusResult, 1)).
 		Via(flow.NewFilter(craneIntegration.WhiteListImages(), 1)).
+		Via(flow.NewFilter(seenImages.FilterDublicates, 1)).
 		Via(flow.NewMap(craneIntegration.CraneRetrieveLabels, 1)).
+		Via(flow.NewMap(devlakeIntegration.PostDeployment, 1)).
 		To(sink)
 }

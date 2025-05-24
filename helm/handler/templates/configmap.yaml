@@ -5,16 +5,5 @@ metadata:
 data:
   .image-handler.yaml: |
     ca_root_pem: |
-        {{ .Values.ca_root_pem }}
-    prometheus:
-        url: https://prometheus.enpace.local
-        # url: http://localhost:9090
-        interval: {{ .Values.prometheus.fetchInterval }}
-    crane:
-        images_whitelist: 
-        - registry.enpace.local\/tiktai\/handler.*
-        registry_username: "$ENPACE_REGISTRY_USERNAME"
-        registry_password: "$ENPACE_REGISTRY_PASSWORD"    
-    httpServer:
-        port: {{ .Values.httpPort }}
-
+      {{ .Values.ca_root_pem }}
+{{ toYaml .Values.imageHandlerConfig | indent 4 }}
