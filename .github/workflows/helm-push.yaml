@@ -36,5 +36,6 @@ jobs:
 
       - name: Push Helm chart to GHCR
         run: |
+          repo=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
           CHART_VERSION=$(helm show chart helm/handler | grep '^version:' | awk '{print $2}')
-          helm push handler-$CHART_VERSION.tgz oci://ghcr.io/${{ github.repository_owner }}/charts
+          helm push handler-$CHART_VERSION.tgz oci://ghcr.io/$repo/charts
