@@ -4,4 +4,6 @@ metadata:
   name: {{ include "handler.fullname" . }}-config
 data:
   .image-handler.yaml: |
+    ca_root_pem: |
+      {{ .Values.ca_root_pem }}
 {{ toYaml .Values.imageHandlerConfig | indent 4 }}

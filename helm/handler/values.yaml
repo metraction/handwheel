@@ -1,8 +1,8 @@
+ca_root_pem: |
+  -----BEGIN CERTIFICATE-----
+  
+  -----END CERTIFICATE-----
 imageHandlerConfig:
-  ca_root_pem: |
-    -----BEGIN CERTIFICATE-----
-    
-    -----END CERTIFICATE-----
   prometheus:
     url: https://prometheus.enpace.local
     # url: http://localhost:9090
