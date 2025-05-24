@@ -1,10 +1,32 @@
-ca_root_pem: |
-  -----BEGIN CERTIFICATE-----
-  
-  -----END CERTIFICATE-----
-
-prometheus: 
-  fetchInterval: 5m
+imageHandlerConfig:
+  ca_root_pem: |
+    -----BEGIN CERTIFICATE-----
+    
+    -----END CERTIFICATE-----
+  prometheus:
+    url: https://prometheus.enpace.local
+    # url: http://localhost:9090
+    interval: 5m
+  crane:
+    registries:
+      - registry: ghcr.io
+        username: "$GHCR_USERNAME"
+        password: "$GHCR_PASSWORD"
+      - registry: registry.enpace.local
+        username: "$ENPACE_REGISTRY_USERNAME"
+        password: "$ENPACE_REGISTRY_PASSWORD"
+  httpServer:
+    port: 8081
+  devlake:
+    url: http://devlake-ui.devlake:4000
+    token: "$DEVLAKE_TOKEN"
+    projects: 
+    - connection_id: 2
+      images:     
+        - ghcr.io\/tiktai\/dora-badge.*
+    - connection_id: 3
+      images:     
+        - ghcr.io\/tiktai\/handler.*
 
 # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
 replicaCount: 1
@@ -28,7 +50,7 @@ envSecrets:
   - github-registry-secret
   - enpace-registry-secret
   - devlake-token-secret
-  
+
 # This is to override the chart name.
 nameOverride: ""
 fullnameOverride: ""

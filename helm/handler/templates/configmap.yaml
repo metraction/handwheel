@@ -4,29 +4,4 @@ metadata:
   name: {{ include "handler.fullname" . }}-config
 data:
   .image-handler.yaml: |
-    ca_root_pem: |
-        {{ .Values.ca_root_pem }}
-    prometheus:
-        url: https://prometheus.enpace.local
-        # url: http://localhost:9090
-        interval: {{ .Values.prometheus.fetchInterval }}
-    crane:
-      registries:
-        - registry: ghcr.io
-          username: "$GHCR_USERNAME"
-          password: "$GHCR_PASSWORD"
-        - registry: registry.enpace.local
-          username: "$ENPACE_REGISTRY_USERNAME"
-          password: "$ENPACE_REGISTRY_PASSWORD" 
-    httpServer:
-        port: {{ .Values.httpPort }}
-    devlake:
-        url: https://devlake-ui.devlake:4000
-        token: "$DEVLAKE_TOKEN"
-        projects: 
-        - connection_id: 2
-          images:     
-            - ghcr.io\/tiktai\/dora-badge.*
-        - connection_id: 3
-          images:     
-            - ghcr.io\/tiktai\/handler.*
+{{ toYaml .Values.imageHandlerConfig | indent 4 }}
