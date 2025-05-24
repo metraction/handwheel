@@ -55,20 +55,11 @@ spec:
             - name: image-handler-config
               mountPath: /config/.image-handler.yaml
               subPath: .image-handler.yaml
-          env:
-          - name: ENPACE_REGISTRY_USERNAME
-            valueFrom:
-              secretKeyRef:
-                name: enpace-registry-secret
-                key: ENPACE_REGISTRY_USERNAME
-          - name: ENPACE_REGISTRY_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: enpace-registry-secret
-                key: ENPACE_REGISTRY_PASSWORD
           envFrom:
+            {{- range .Values.envSecrets }}
             - secretRef:
-                name: github-registry-secret          
+                name: {{ . }}
+            {{- end }}
           livenessProbe:
             httpGet:
               path: /livez

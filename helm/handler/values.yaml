@@ -22,6 +22,13 @@ image:
 # This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: 
   - name: github-registry
+
+# List of secrets to load as environment variables in the container
+envSecrets:
+  - github-registry-secret
+  - enpace-registry-secret
+  - devlake-token-secret
+  
 # This is to override the chart name.
 nameOverride: ""
 fullnameOverride: ""
