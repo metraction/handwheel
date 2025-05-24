@@ -35,7 +35,6 @@ func getAuthForRegistry(cfg *model.Config, registry string) authn.Authenticator 
 	return authn.Anonymous
 }
 
-
 func (ci *CraneIntegration) WhiteListImages() func(elem model.ImageMetric) bool {
 	// Collect all patterns from devlake.projects.images
 	var patterns []string
@@ -73,6 +72,7 @@ func (ci *CraneIntegration) CraneRetrieveLabels(elem model.ImageMetric) model.Im
 
 	// Get registry from ref.Context().RegistryStr()
 	auth := getAuthForRegistry(ci.config, ref.Context().RegistryStr())
+	log.Printf("Using auth for registry %s: %v", ref.Context().RegistryStr(), auth)
 	remoteImg, err := remote.Image(ref, append(ci.remoteOpts, remote.WithAuth(auth))...)
 	if err != nil {
 		log.Printf("failed to fetch image %s: %v", elem.Image_spec, err)
