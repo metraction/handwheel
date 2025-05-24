@@ -20,12 +20,12 @@ httpServer:
     port: 8081
 
 devlake:
-    url: https://devlake.enpace.local
+    url: http://localhost:30090
     token: "$DEVLAKE_TOKEN"
     projects: 
-    - connection_id: 2
-      images:     
-        - ghcr.io\/tiktai\/dora-badge.*
+    # - connection_id: 2
+    #   images:     
+    #     - ghcr.io\/tiktai\/dora-badge.*
     - connection_id: 3
       images:     
-        - registry.enpace.local\/tiktai\/handler.*
+        - ghcr.io\/tiktai\/handler.*

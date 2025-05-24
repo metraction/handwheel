@@ -14,16 +14,20 @@ import (
 
 type DevLakeIntegration struct {
 	config model.DevLakeConfig
+	client *http.Client
 }
 
 func NewDevLakeIntegration(cfg *model.Config) *DevLakeIntegration {
 	return &DevLakeIntegration{
 		config: cfg.DevLake,
+		client: &http.Client{
+			Timeout: 10 * time.Second,
+			Transport: NewHttpTransport(cfg),
+		},
 	}
 }
 
 func (di *DevLakeIntegration) PostDeployment(image model.Image) model.OutputWithError {
-	// Placeholder: these should come from config or arguments
 	repoURL := image.Labels["repo_url"]
 	connectionID := -1
 	for _, project := range di.config.Projects {
@@ -32,7 +36,7 @@ func (di *DevLakeIntegration) PostDeployment(image model.Image) model.OutputWith
 			if err != nil {
 				continue // skip invalid pattern
 			}
-			if re.MatchString(repoURL) {
+			if re.MatchString(image.Image_spec) {
 				connectionID = project.ConnectionID
 				break
 			}
@@ -42,7 +46,7 @@ func (di *DevLakeIntegration) PostDeployment(image model.Image) model.OutputWith
 		}
 	}
 	if connectionID == -1 {
-		return model.OutputWithError{Err: fmt.Errorf("no matching devlake project for repo_url: %s", repoURL)}
+		return model.OutputWithError{Err: fmt.Errorf("no matching devlake project for repo_url: %s in %v", repoURL, di.config.Projects)}
 	}
 
 	url := fmt.Sprintf("%s/api/rest/plugins/webhook/connections/%d/deployments", di.config.URL, connectionID)
@@ -58,6 +62,7 @@ func (di *DevLakeIntegration) PostDeployment(image model.Image) model.OutputWith
 		},
 		"start_time": time.Now().UTC().Format(time.RFC3339), // or get from image.Labels if available
 	}
+	fmt.Println("Payload: ", payload)
 	if v, ok := image.Labels["start_time"]; ok {
 		payload["start_time"] = v
 	}
@@ -74,8 +79,7 @@ func (di *DevLakeIntegration) PostDeployment(image model.Image) model.OutputWith
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token)
 
-	client := &http.Client{Timeout: 10 * time.Second}
-	resp, err := client.Do(req)
+	resp, err := di.client.Do(req)
 	if err != nil {
 		return model.OutputWithError{Err: fmt.Errorf("request failed: %w", err)}
 	}
