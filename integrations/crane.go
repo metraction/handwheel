@@ -17,16 +17,24 @@ type CraneIntegration struct {
 
 func NewCraneIntegration(cfg *model.Config) *CraneIntegration {
 	var opts []remote.Option
-	if cfg.Crane.RegistryUsername != "" && cfg.Crane.RegistryPassword != "" {
-		auth := &authn.Basic{
-			Username: cfg.Crane.RegistryUsername,
-			Password: cfg.Crane.RegistryPassword,
-		}
-		opts = append(opts, remote.WithAuth(auth))
-	}
+	// Add transport option
 	opts = append(opts, remote.WithTransport(NewHttpTransport(cfg)))
 	return &CraneIntegration{config: cfg, remoteOpts: opts}
 }
+
+// getAuthForRegistry returns the auth for a given registry, or nil if not found
+func getAuthForRegistry(cfg *model.Config, registry string) authn.Authenticator {
+	for _, reg := range cfg.Crane.Registries {
+		if reg.Registry == registry {
+			return &authn.Basic{
+				Username: reg.Username,
+				Password: reg.Password,
+			}
+		}
+	}
+	return authn.Anonymous
+}
+
 
 func (ci *CraneIntegration) WhiteListImages() func(elem model.ImageMetric) bool {
 	// Collect all patterns from devlake.projects.images
@@ -63,7 +71,9 @@ func (ci *CraneIntegration) CraneRetrieveLabels(elem model.ImageMetric) model.Im
 		return img
 	}
 
-	remoteImg, err := remote.Image(ref, ci.remoteOpts...)
+	// Get registry from ref.Context().RegistryStr()
+	auth := getAuthForRegistry(ci.config, ref.Context().RegistryStr())
+	remoteImg, err := remote.Image(ref, append(ci.remoteOpts, remote.WithAuth(auth))...)
 	if err != nil {
 		log.Printf("failed to fetch image %s: %v", elem.Image_spec, err)
 		return img

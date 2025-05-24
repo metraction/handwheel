@@ -66,6 +66,9 @@ spec:
               secretKeyRef:
                 name: enpace-registry-secret
                 key: ENPACE_REGISTRY_PASSWORD
+          envFrom:
+            - secretRef:
+                name: github-registry-secret          
           livenessProbe:
             httpGet:
               path: /livez

@@ -5,10 +5,17 @@ type PrometheusConfig struct {
 	Interval string `mapstructure:"interval"`
 }
 
+type RegistryAuth struct {
+	Registry string `mapstructure:"registry"`
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
+}
+
 type CraneConfig struct {
-	Images_whitelist []string `mapstructure:"images_whitelist"`
-	RegistryUsername string   `mapstructure:"registry_username"`
-	RegistryPassword string   `mapstructure:"registry_password"`
+	Images_whitelist []string      `mapstructure:"images_whitelist"`
+	Registries       []RegistryAuth `mapstructure:"registries"`
+	// RegistryUsername string   `mapstructure:"registry_username"` // Deprecated
+	// RegistryPassword string   `mapstructure:"registry_password"` // Deprecated
 }
 
 // HttpServerConfig holds configuration for the HTTP server (e.g., for health probes)
