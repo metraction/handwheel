@@ -38,6 +38,7 @@ jobs:
 
       - name: Package Helm chart with version and appVersion
         run: |
+          echo "Version: $VERSION"
           helm package helm/handler --destination . \
             --version "$VERSION" \
             --app-version "$VERSION"
