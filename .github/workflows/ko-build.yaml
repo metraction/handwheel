@@ -4,15 +4,29 @@ on:
   push:
     branches: 
     - main
+    - 'H-13/*'
+    tags:
+    - 'v*'
   pull_request:
-    branches: [ main ]
+    branches: 
+      - main
 
 jobs:
   ko-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: ko-build/setup-ko@v0.9
+      - name: Set version from semver.sh
+        id: semver
+        run: |
+          VERSION=$(./scripts/semver.sh)
+          VERSION=$(echo $VERSION | sed 's/+/_/g')
+
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Version: $VERSION"
       - name: Build image with ko
         run: |
-          ko build --sbom=none --platform=linux/amd64 --tags=latest --image-label="repo_url=${{ github.event.repository.html_url }},commit_sha=${{ github.sha }}"
+          ko build --sbom=none --platform=linux/amd64 --tags=$VERSION --image-label="repo_url=${{ github.event.repository.html_url }},commit_sha=${{ github.sha }}"

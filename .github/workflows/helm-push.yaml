@@ -4,9 +4,13 @@ on:
   push:
     branches:
       - main
-      - H-10/post-webhook
+      - 'H-13/*'
     tags:
       - 'v*'
+  pull_request:
+    branches: 
+      - main
+  
 
 jobs:
   push-helm-chart:
@@ -17,6 +21,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Helm
         uses: azure/setup-helm@v4
@@ -30,12 +36,22 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Package Helm chart
+      - name: Set version from semver.sh
+        id: semver
         run: |
-          helm package helm/handler --destination .
+          VERSION=$(./scripts/semver.sh)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Package Helm chart with version and appVersion
+        run: |
+          echo "Version: $VERSION"
+          DOCKER_VERSION=$(echo $VERSION | sed 's/+/_/g')
+
+          helm package helm/handler --destination . \
+            --version "$VERSION" \
+            --app-version "$DOCKER_VERSION"
 
       - name: Push Helm chart to GHCR
         run: |
           repo=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          CHART_VERSION=$(helm show chart helm/handler | grep '^version:' | awk '{print $2}')
-          helm push handler-$CHART_VERSION.tgz oci://ghcr.io/$repo/charts
+          helm push handler-$VERSION.tgz oci://ghcr.io/$repo/charts
