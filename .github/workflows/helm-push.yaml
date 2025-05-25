@@ -7,10 +7,6 @@ on:
       - 'H-13/*'
     tags:
       - 'v*'
-  pull_request:
-    branches: 
-      - main
-  
 
 jobs:
   push-helm-chart:
