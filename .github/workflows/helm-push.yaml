@@ -30,12 +30,19 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Package Helm chart
+      - name: Set version from semver.sh
+        id: semver
         run: |
-          helm package helm/handler --destination .
+          VERSION=$(./scripts/semver.sh)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Package Helm chart with version and appVersion
+        run: |
+          helm package helm/handler --destination . \
+            --version "$VERSION" \
+            --app-version "$VERSION"
 
       - name: Push Helm chart to GHCR
         run: |
           repo=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          CHART_VERSION=$(helm show chart helm/handler | grep '^version:' | awk '{print $2}')
-          helm push handler-$CHART_VERSION.tgz oci://ghcr.io/$repo/charts
+          helm push handler-$VERSION.tgz oci://ghcr.io/$repo/charts

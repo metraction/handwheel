@@ -13,6 +13,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ko-build/setup-ko@v0.9
+      - name: Set version from semver.sh
+        id: semver
+        run: |
+          chmod +x ./scripts/semver.sh
+          VERSION=$(./scripts/semver.sh)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
       - name: Build image with ko
         run: |
-          ko build --sbom=none --platform=linux/amd64 --tags=latest --image-label="repo_url=${{ github.event.repository.html_url }},commit_sha=${{ github.sha }}"
+          ko build --sbom=none --platform=linux/amd64 --tags=$VERSION --image-label="repo_url=${{ github.event.repository.html_url }},commit_sha=${{ github.sha }}"
