@@ -25,5 +25,11 @@ if [ "$CURRENT_BRANCH" = "$DEFAULT_BRANCH" ]; then
         echo $VERSION-$DISTANCE+$SHORT_COMMIT
     fi
 else
-    echo ${VERSION}-${BRANCH_ALNUM}-${DISTANCE}+$SHORT_COMMIT
+    # Increment patch version by 1
+    PATCH=$(echo $VERSION | sed -E 's/^v?([0-9]+)\.([0-9]+)\.([0-9]+)$/\3/')
+    PATCH=$((PATCH + 1))
+    MAJOR=$(echo $VERSION | sed -E 's/^v?([0-9]+)\..*/\1/')
+    MINOR=$(echo $VERSION | sed -E 's/^v?[0-9]+\.([0-9]+)\..*/\1/')
+    NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+    echo ${NEW_VERSION}-${BRANCH_ALNUM}-${DISTANCE}+$SHORT_COMMIT
 fi
