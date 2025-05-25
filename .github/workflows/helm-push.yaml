@@ -45,10 +45,11 @@ jobs:
       - name: Package Helm chart with version and appVersion
         run: |
           echo "Version: $VERSION"
+          DOCKER_VERSION=$(echo $VERSION | sed 's/+/_/g')
 
           helm package helm/handler --destination . \
             --version "$VERSION" \
-            --app-version "$VERSION"
+            --app-version "$DOCKER_VERSION"
 
       - name: Push Helm chart to GHCR
         run: |
