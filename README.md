@@ -1,5 +1,5 @@
-![deployments_frequency](https://img.shields.io/badge/deployments_frequency-1-green)
-![lead_time_for_changes](https://img.shields.io/badge/lead_time_for_changes-1d-blue)
+![deployments_frequency](https://handler-badges.enpace.ch/df/Tiktai-handler)
+![lead_time_for_changes](https://handler-badges.enpace.ch/ltfc/Tiktai-handler)
 
 # Handler Project
 
