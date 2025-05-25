@@ -17,8 +17,11 @@ CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 # Remove non-alphanumeric chars from branch name
 BRANCH_ALNUM=$(echo "$CURRENT_BRANCH" | tr -cd '[:alnum:]')
 
-# Print version based on branch
-if [ "$CURRENT_BRANCH" = "$DEFAULT_BRANCH" ]; then
+# Print version based on branch or tag
+if [ "$CURRENT_BRANCH" = "HEAD" ]; then
+    # On tag, output pure semver
+    echo $VERSION
+elif [ "$CURRENT_BRANCH" = "$DEFAULT_BRANCH" ]; then
     if [ "$DISTANCE" = "0" ] || [ -z "$DISTANCE" ]; then
         echo $VERSION
     else
