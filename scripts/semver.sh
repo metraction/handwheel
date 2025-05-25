@@ -25,5 +25,5 @@ if [ "$CURRENT_BRANCH" = "$DEFAULT_BRANCH" ]; then
         echo $VERSION-$DISTANCE.g$SHORT_COMMIT
     fi
 else
-    echo ${VERSION}-${BRANCH_ALNUM}-${DISTANCE}+${SHORT_COMMIT}
+    echo ${VERSION}-${BRANCH_ALNUM}-${DISTANCE}_${SHORT_COMMIT}
 fi
