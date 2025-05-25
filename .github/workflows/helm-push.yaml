@@ -4,13 +4,9 @@ on:
   push:
     branches:
       - main
-      - 'H-13/*'
+      - 'H-14/*'
     tags:
       - 'v*'
-  pull_request:
-    branches: 
-      - main
-  
 
 jobs:
   push-helm-chart:
