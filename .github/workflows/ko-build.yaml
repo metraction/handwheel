@@ -23,6 +23,8 @@ jobs:
         id: semver
         run: |
           VERSION=$(./scripts/semver.sh)
+          VERSION=$(echo $VERSION | sed 's/+/_/g')
+
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "Version: $VERSION"
       - name: Build image with ko
