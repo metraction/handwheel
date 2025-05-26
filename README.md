@@ -2,14 +2,12 @@
 [![lead_time_for_changes](https://handler-badges.enpace.ch/v1/Tiktai-handler/ltfc)](https://handler-badges.enpace.ch/v1/Tiktai-handler/ltfc-stats)
 
 # Handler Project
-[DevOps Research and Assessment (DORA)](https://cloud.google.com/blog/products/devops-sre/announcing-dora-2021-accelerate-state-of-devops-report) allows to measure how fast and reliable you can deliver value to your customers. Two of these metrics measure velocity:
-- Deployment Frequency—How often an organization successfully releases to production
-- Lead Time for Changes—The amount of time it takes a commit to get into production
+[DevOps Research and Assessment (DORA)](https://cloud.google.com/blog/products/devops-sre/announcing-dora-2021-accelerate-state-of-devops-report) enables organizations to measure the speed and reliability of customer value delivery. Two core velocity metrics include:
 
+- Deployment Frequency — How frequently code deploys successfully to production.
+- Lead Time for Changes — The duration from code commit to production deployment.
 
-Handler helps to get those metrics with least effort.
-It tracks images reaching deployment environments and reports those events to devlake. 
-This allows seamless reporting on DORA metrics without dependencies on pipelines.
+Handler simplifies capturing these metrics by automatically tracking container images across deployment environments and reporting events to DevLake. This eliminates manual pipeline instrumentation, enabling seamless DORA reporting with minimal configuration
 
 <img src="docs/context.excalidraw.png" width="75%"/>
 
