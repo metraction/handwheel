@@ -11,6 +11,8 @@ Handler simplifies capturing these metrics by automatically tracking container i
 
 <img src="docs/context.excalidraw.png" width="75%"/>
 
+Check [dora-badges](https://github.com/Tiktai/dora-badge) for badges and stats.
+
 ## Project Structure
 
 - `cmd/` - Main application entry point(s)
