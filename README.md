@@ -1,10 +1,18 @@
-![deployments_frequency](https://handler-badges.enpace.ch/df/Tiktai-handler)
-![lead_time_for_changes](https://handler-badges.enpace.ch/ltfc/Tiktai-handler)
+![deployments_frequency](https://handler-badges.enpace.ch/v1/Tiktai-handler/df)
+[![lead_time_for_changes](https://handler-badges.enpace.ch/v1/Tiktai-handler/ltfc)](https://handler-badges.enpace.ch/v1/Tiktai-handler/ltfc-stats)
 
 # Handler Project
+[DevOps Research and Assessment (DORA)](https://cloud.google.com/blog/products/devops-sre/announcing-dora-2021-accelerate-state-of-devops-report) allows to measure how fast and reliable you can deliver value to your customers. Two of these metrics measure velocity:
+- Deployment Frequency—How often an organization successfully releases to production
+- Lead Time for Changes—The amount of time it takes a commit to get into production
 
-Handler tracks images reaching deployment environments and reports those events to devlake. This allows seamless repoting on dora metics.
+
+Handler helps to get those metrics with least effort.
+It tracks images reaching deployment environments and reports those events to devlake. 
+This allows seamless reporting on DORA metrics without dependencies on pipelines.
+
 <img src="docs/context.excalidraw.png" width="75%"/>
+
 ## Project Structure
 
 - `cmd/` - Main application entry point(s)
