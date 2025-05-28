@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "ca_root_pem": {
+      "type": "string",
+      "description": "Root CA certificate in PEM format"
+    },
+    "imageHandlerConfig": {
+      "type": "object",
+      "properties": {
+        "prometheus": {
+          "type": "object",
+          "properties": {
+            "url": { "type": "string", "description": "Prometheus URL" },
+            "interval": { "type": "string", "description": "Scrape interval (e.g., 5m)" }
+          },
+          "required": ["url", "interval"]
+        },
+        "crane": {
+          "type": "object",
+          "properties": {
+            "registries": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "description": "List of the registries to fetch labels from",
+                "properties": {
+                  "registry": { "type": "string", "description": "Docker registry i.e. ghcr.io" },
+                  "username": { "type": "string", "description": "Registry username" },
+                  "password": { "type": "string", "description": "Registry password" }
+                },
+                "required": ["registry", "username", "password"]
+              }
+            }
+          },
+          "required": ["registries"]
+        },
+        "httpServer": {
+          "type": "object",
+          "properties": {
+            "port": { "type": "integer", "description": "HTTP server port" }
+          },
+          "required": ["port"]
+        },
+        "devlake": {
+          "type": "object",
+          "description": "Configuration where to push deployment events",
+          "properties": {
+            "url": { "type": "string", "description": "DevLake URL." },
+            "token": { "type": "string", "description": "DevLake API token.Could be found at https://<devlake host>/keys" },
+            "projects": {
+              "type": "array",
+              "description": "List of the devlake projects report to - each of them has webhooks identified by connection id",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "connection_id": { "type": "integer", "description": "DevLake Web hook connection ID used to post deployment events. Could be found at <devlake host>/projects/<devlake project>?tab=configuration&tabId=webhook" },
+                  "images": {
+                    "type": "array",
+                    "items": { "type": "string", "description": "List of image filters to post deployment events for" }
+                  }
+                },
+                "required": ["connection_id", "images"]
+              }
+            }
+          },
+          "required": ["url", "token", "projects"]
+        }
+      },
+      "required": ["prometheus", "crane", "httpServer", "devlake"]
+    },
+    "replicaCount": {
+      "type": "integer",
+      "description": "Number of replicas"
+    }
+  },
+  "required": ["ca_root_pem", "imageHandlerConfig", "replicaCount"]
+}
