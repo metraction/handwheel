@@ -13,6 +13,62 @@ Handler simplifies capturing these metrics by automatically tracking container i
 
 Check [dora-badges](https://github.com/Tiktai/dora-badge) for badges and stats.
 
+# Getting Started
+
+In order handler to work, docker images during build time need to be labeled, handler has to know where to fetch data from and where to push events to. 
+
+## Label images 
+
+During build time add following labels:
+
+```
+repo_url - where the docker is build
+commit_sha - full commit sha which triggered the build
+```
+In ko builder this could be done with:
+```
+ko build --sbom=none --platform=linux/amd64 --tags=$VERSION --image-label="repo_url=${{ github.event.repository.html_url }},commit_sha=${{ github.sha }}"
+```
+See [ko-build.yaml](.github/workflows/ko-build.yaml) for more details
+
+For docker build docker this could be done throug [dockerfile](https://dockerlabs.collabnix.com/beginners/dockerfile/Label_instruction.html) or [buildx](https://docs.docker.com/reference/cli/docker/buildx/build/)
+
+## Configure devlake
+
+Devlake allows different configurations of projects see [tutorial](https://devlake.apache.org/docs/Configuration/Tutorial)
+
+The minimum is required:
+- [Data connection](https://devlake.apache.org/docs/Overview/KeyConcepts/#data-connection)
+- Data scope (under the details in data connection) - points what Git repose to track
+- Scope config - describes what to fetch 
+- Project - in a simpliest form on per data connection
+- Webhook - endpoint to push deployments
+
+## Setup handler
+
+Modify `values.yaml` file (see schema for descriptions)
+- Point to prometheus instance to read the data
+- Define in `crane` section docker registry credentials and url to fetch image labels  
+- `devlake` section to assign patterns of images to devlake projects.
+
+Deploy the handler with updated helm values
+
+## Test
+
+Go to devlake grafana and check metrics - check `DORA Validation`, `DORA Details - Deployment Frequency` and `DORA Details - Lead Time for Changes` dashboards
+
+If [handler-badges](https://github.com/tiktai/dora-badge) are installed check url
+```
+<handler-badge host>/v1/Tiktai-handler/df - to check are deployments pushed
+<handler-badge host>/v1/Tiktai-handler/ltfc-stats - to check lead time for changes
+```
+
+## Running Locally
+To start the server:
+```bash
+go run . --config ./.image-handler.yaml 
+```
+
 ## Project Structure
 
 - `cmd/` - Main application entry point(s)
@@ -26,29 +82,6 @@ Check [dora-badges](https://github.com/Tiktai/dora-badge) for badges and stats.
   - `data.go` - Data types
 - `routing/` - Routing logic
   - `devlake.go` - DevLake routing
-  
-
-## Getting Started
-
-### Prerequisites
-- Go 1.20 or newer
-
-### Installation
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd handler
-   ```
-2. Install dependencies:
-   ```bash
-   go mod download
-   ```
-
-### Running Locally
-To start the server:
-```bash
-go run main.go
-```
 
 ## License
 See [LICENSE](LICENSE) for details.
