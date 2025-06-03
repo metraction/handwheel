@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Tiktai/handler/model"
+	"github.com/metraction/handwheel/model"
 )
 
 type PrometheusIntegration struct {

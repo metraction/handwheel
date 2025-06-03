@@ -4,10 +4,10 @@ import (
 	"log"
 	"regexp"
 
-	"github.com/Tiktai/handler/model"
 	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
+	"github.com/metraction/handwheel/model"
 )
 
 type CraneIntegration struct {
@@ -38,7 +38,6 @@ func NewCraneIntegration(cfg *model.Config) *CraneIntegration {
 	opts = append(opts, remote.WithAuthFromKeychain(&MultiRegistryKeychain{cfg}))
 	return &CraneIntegration{config: cfg, remoteOpts: opts}
 }
-
 
 func (ci *CraneIntegration) WhiteListImages() func(elem model.ImageMetric) bool {
 	// Collect all patterns from devlake.projects.images
