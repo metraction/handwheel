@@ -10,8 +10,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Tiktai/handler/model"
-	"github.com/Tiktai/handler/routing"
+	"github.com/metraction/handwheel/model"
+	"github.com/metraction/handwheel/routing"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

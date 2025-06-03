@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/Tiktai/handler/model"
+	"github.com/metraction/handwheel/model"
 )
 
 func NewHttpTransport(cfg *model.Config) *http.Transport {

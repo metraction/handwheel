@@ -4,8 +4,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/Tiktai/handler/integrations"
-	"github.com/Tiktai/handler/model"
+	"github.com/metraction/handwheel/integrations"
+	"github.com/metraction/handwheel/model"
 	ext "github.com/reugn/go-streams/extension"
 	"github.com/reugn/go-streams/flow"
 )

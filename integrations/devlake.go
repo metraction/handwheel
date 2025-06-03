@@ -9,7 +9,7 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/Tiktai/handler/model"
+	"github.com/metraction/handwheel/model"
 )
 
 type DevLakeIntegration struct {
@@ -21,7 +21,7 @@ func NewDevLakeIntegration(cfg *model.Config) *DevLakeIntegration {
 	return &DevLakeIntegration{
 		config: cfg.DevLake,
 		client: &http.Client{
-			Timeout: 10 * time.Second,
+			Timeout:   10 * time.Second,
 			Transport: NewHttpTransport(cfg),
 		},
 	}
