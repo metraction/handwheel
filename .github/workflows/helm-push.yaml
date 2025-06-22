@@ -3,51 +3,17 @@ name: Push Helm Chart
 on:
   push:
     branches:
-      - main
-      - 'H-19/*'
+    - main
+    - 'H-19/*'
     tags:
       - 'v*'
 
 jobs:
   push-helm-chart:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up Helm
-        uses: azure/setup-helm@v4
-        with:
-          version: v3.14.0
-
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set version from semver.sh
-        id: semver
-        run: |
-          VERSION=$(./scripts/semver.sh)
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-
-      - name: Package Helm chart with version and appVersion
-        run: |
-          echo "Version: $VERSION"
-          DOCKER_VERSION=$(echo $VERSION | sed 's/+/_/g')
-
-          helm package helm/handler --destination . \
-            --version "$VERSION" \
-            --app-version "$DOCKER_VERSION"
-
-      - name: Push Helm chart to GHCR
-        run: |
-          repo=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          helm push handler-$VERSION.tgz oci://ghcr.io/$repo/charts
+    uses: metraction/github-actions/.github/workflows/helm-push.yaml@main
+    with:
+      chart_dir: helm/handler
+      chart_name: handler
+      destination: .
+      registry: oci://ghcr.io/metraction/charts
+    secrets: inherit
