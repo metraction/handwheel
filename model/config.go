@@ -1,8 +1,16 @@
 package model
 
 type PrometheusConfig struct {
-	URL      string `mapstructure:"url"`
-	Interval string `mapstructure:"interval"`
+	URL      string         `mapstructure:"url"`
+	Interval string         `mapstructure:"interval"`
+	Query    string         `mapstructure:"query"` // Query to fetch image metrics, default:, "kube_pod_container_info"
+	Auth     PrometheusAuth `mapstructure:"auth"`  // Deprecated, use crane.registries instead
+}
+
+type PrometheusAuth struct {
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
+	Token    string `mapstructure:"token"`
 }
 
 type RegistryAuth struct {
@@ -12,7 +20,7 @@ type RegistryAuth struct {
 }
 
 type CraneConfig struct {
-	Images_whitelist []string      `mapstructure:"images_whitelist"`
+	Images_whitelist []string       `mapstructure:"images_whitelist"`
 	Registries       []RegistryAuth `mapstructure:"registries"`
 	// RegistryUsername string   `mapstructure:"registry_username"` // Deprecated
 	// RegistryPassword string   `mapstructure:"registry_password"` // Deprecated

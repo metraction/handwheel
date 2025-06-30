@@ -73,7 +73,9 @@ func normalizePEM(pemBytes []byte) []byte {
 
 func NewPrometheusIntegration(cfg *model.Config) *PrometheusIntegration {
 	transport := NewHttpTransport(cfg)
-	client := &http.Client{Transport: transport}
+	client := &http.Client{
+		Transport: transport,
+	}
 
 	return &PrometheusIntegration{
 		config:     cfg.Prometheus,
@@ -83,9 +85,24 @@ func NewPrometheusIntegration(cfg *model.Config) *PrometheusIntegration {
 
 func (integration PrometheusIntegration) FetchImageMetrics(_ any) model.OutputWithError {
 	log.Println("Fetching metrics.")
-	url := fmt.Sprintf("%s/api/v1/query?query=kube_pod_container_info", integration.config.URL)
-
-	resp, err := integration.httpClient.Get(url)
+	if integration.config.Query == "" {
+		integration.config.Query = "kube_pod_container_info" // Default query if not specified
+	}
+	url := fmt.Sprintf("%s/api/v1/query?query=%s", integration.config.URL, integration.config.Query)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return model.OutputWithError{Err: err}
+	}
+	if integration.config.Auth.Token == "" && integration.config.Auth.Username != "" {
+		log.Println("Using token and username for authentication.")
+		req.SetBasicAuth(integration.config.Auth.Username, integration.config.Auth.Password)
+	} else if integration.config.Auth.Token != "" {
+		log.Println("Using token for authentication.")
+		req.Header.Set("Authorization", "Bearer "+integration.config.Auth.Token)
+	} else {
+		log.Println("No authentication configured, using anonymous access.")
+	}
+	resp, err := integration.httpClient.Do(req)
 	if err != nil {
 		return model.OutputWithError{Err: err}
 	}
@@ -104,8 +121,12 @@ func (integration PrometheusIntegration) FetchImageMetrics(_ any) model.OutputWi
 		if image_spec == "" {
 			image_spec = r.Metric["pod"] // fallback, adjust as needed
 		}
+		labels := make(map[string]string)
+		for k, v := range r.Metric {
+			labels[k] = v
+		}
 		if image_spec != "" {
-			metrics = append(metrics, model.ImageMetric{Image_spec: image_spec})
+			metrics = append(metrics, model.ImageMetric{Image_spec: image_spec, Labels: labels})
 		}
 	}
 	return model.OutputWithError{Result: metrics}
