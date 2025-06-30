@@ -109,7 +109,7 @@ func (integration PrometheusIntegration) FetchImageMetrics(_ any) model.OutputWi
 			labels[k] = v
 		}
 		if image_spec != "" {
-			metrics = append(metrics, model.ImageMetric{Image_spec: image_spec})
+			metrics = append(metrics, model.ImageMetric{Image_spec: image_spec, Labels: labels})
 		}
 	}
 	return model.OutputWithError{Result: metrics}
