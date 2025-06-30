@@ -104,6 +104,10 @@ func (integration PrometheusIntegration) FetchImageMetrics(_ any) model.OutputWi
 		if image_spec == "" {
 			image_spec = r.Metric["pod"] // fallback, adjust as needed
 		}
+		labels := make(map[string]string)
+		for k, v := range r.Metric {
+			labels[k] = v
+		}
 		if image_spec != "" {
 			metrics = append(metrics, model.ImageMetric{Image_spec: image_spec})
 		}
