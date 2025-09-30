@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 // livenessHandler responds with 200 OK if the application is running.
@@ -27,9 +29,13 @@ func StartHealthServer(port string) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/livez", livenessHandler)
 	mux.HandleFunc("/readyz", readinessHandler)
+	
+	// Add Prometheus metrics endpoint
+	mux.Handle("/metrics", promhttp.Handler())
 
 	serverAddr := ":" + port
 	log.Printf("Starting health and readiness server on %s", serverAddr)
+	log.Printf("Prometheus metrics available at http://localhost%s/metrics", serverAddr)
 	if err := http.ListenAndServe(serverAddr, mux); err != nil {
 		log.Fatalf("Health server failed: %v", err)
 	}

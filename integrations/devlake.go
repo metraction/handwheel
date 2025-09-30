@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/metraction/handwheel/metrics"
 	"github.com/metraction/handwheel/model"
 )
 
@@ -46,6 +47,7 @@ func (di *DevLakeIntegration) PostDeployment(image model.Image) model.OutputWith
 		}
 	}
 	if connectionID == -1 {
+		metrics.ErrorsTotal.WithLabelValues("no_matching_project", "devlake").Inc()
 		return model.OutputWithError{Err: fmt.Errorf("no matching devlake project for repo_url: %s in %v", repoURL, di.config.Projects)}
 	}
 
@@ -69,11 +71,13 @@ func (di *DevLakeIntegration) PostDeployment(image model.Image) model.OutputWith
 
 	body, err := json.Marshal(payload)
 	if err != nil {
+		metrics.ErrorsTotal.WithLabelValues("json_marshal", "devlake").Inc()
 		return model.OutputWithError{Err: fmt.Errorf("failed to marshal payload: %w", err)}
 	}
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
 	if err != nil {
+		metrics.ErrorsTotal.WithLabelValues("http_request", "devlake").Inc()
 		return model.OutputWithError{Err: fmt.Errorf("failed to create request: %w", err)}
 	}
 	req.Header.Set("Content-Type", "application/json")
@@ -81,12 +85,18 @@ func (di *DevLakeIntegration) PostDeployment(image model.Image) model.OutputWith
 
 	resp, err := di.client.Do(req)
 	if err != nil {
+		metrics.ErrorsTotal.WithLabelValues("http_do", "devlake").Inc()
 		return model.OutputWithError{Err: fmt.Errorf("request failed: %w", err)}
 	}
 	defer resp.Body.Close()
 	respBody, _ := io.ReadAll(resp.Body)
 	if resp.StatusCode >= 300 {
+		metrics.ErrorsTotal.WithLabelValues("webhook_error", "devlake").Inc()
 		return model.OutputWithError{Err: fmt.Errorf("devlake webhook error: %s", string(respBody))}
 	}
+	
+	// Record successful deployment post
+	metrics.DeploymentsPostedTotal.Inc()
+	
 	return model.OutputWithError{Result: string(respBody)}
 }
