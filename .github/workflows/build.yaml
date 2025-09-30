@@ -22,7 +22,7 @@ jobs:
     uses: metraction/github-actions/.github/workflows/helm-push.yaml@0.0.4
     needs: [ko-build]
     with:
-      chart_dir: helm/hanler
+      chart_dir: helm/handler
       chart_name: handler
       destination: .
       registry: oci://ghcr.io/metraction/charts
