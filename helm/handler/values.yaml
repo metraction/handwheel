@@ -39,7 +39,7 @@ replicaCount: 1
 # This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
 image:
   registry: ghcr.io
-  repository: metraction/handwheel/handwheel-e4ae9606ee7f79b25c7f2d9619ddad75
+  repository: metraction/handwheel
   # This sets the pull policy for images.
   pullPolicy: Always
 
