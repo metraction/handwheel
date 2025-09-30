@@ -1,0 +1,30 @@
+name: Build
+on:
+    push:
+      branches:
+      - main
+      - '13-*'
+      tags:
+        - 'v*'
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:  
+  ko-build:
+    # Run this job only on push events, not when manually triggered just for tests
+    if: github.event_name == 'push'
+    needs: [go-test]
+    uses: metraction/github-actions/.github/workflows/ko-build.yaml@0.0.4
+    secrets: inherit
+    
+  push-helm-chart:
+    uses: metraction/github-actions/.github/workflows/helm-push.yaml@0.0.4
+    needs: [ko-build]
+    with:
+      chart_dir: helm/pharos
+      chart_name: pharos
+      destination: .
+      registry: oci://ghcr.io/metraction/charts
+    secrets: inherit
