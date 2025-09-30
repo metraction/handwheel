@@ -12,11 +12,13 @@ permissions:
 
 jobs:  
   ko-build:
-    uses: metraction/github-actions/.github/workflows/ko-build.yaml@0.0.4
+    # Run on pull_request events, or on push to main/tags only (skip push to PR branches)
+    if: github.event_name == 'push' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+    uses: metraction/github-actions/.github/workflows/ko-build.yaml@incremental
     secrets: inherit
     
   push-helm-chart:
-    uses: metraction/github-actions/.github/workflows/helm-push.yaml@0.0.4
+    uses: metraction/github-actions/.github/workflows/helm-push.yaml@incremental
     needs: [ko-build]
     with:
       chart_dir: helm/handler
