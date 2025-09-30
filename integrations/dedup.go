@@ -1,6 +1,10 @@
 package integrations
 
-import "sync"
+import (
+	"sync"
+
+	"github.com/metraction/handwheel/metrics"
+)
 
 // Dedup holds state for filtering duplicate images in-memory.
 type Dedup struct {
@@ -28,6 +32,10 @@ func (d *Dedup) FilterDublicates(item any) bool {
 		return false
 	}
 	d.seen[image] = struct{}{}
+	
+	// Update unique images gauge
+	metrics.UniqueImagesGauge.Set(float64(len(d.seen)))
+	
 	return true
 }
 

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/metraction/handwheel/metrics"
 	"github.com/metraction/handwheel/model"
 )
 
@@ -91,6 +92,8 @@ func (integration PrometheusIntegration) FetchImageMetrics(_ any) model.OutputWi
 	url := fmt.Sprintf("%s/api/v1/query?query=%s", integration.config.URL, integration.config.Query)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
+		metrics.PrometheusQueriesTotal.WithLabelValues("error").Inc()
+		metrics.ErrorsTotal.WithLabelValues("http_request", "prometheus").Inc()
 		return model.OutputWithError{Err: err}
 	}
 	if integration.config.Auth.Token == "" && integration.config.Auth.Username != "" {
@@ -104,18 +107,24 @@ func (integration PrometheusIntegration) FetchImageMetrics(_ any) model.OutputWi
 	}
 	resp, err := integration.httpClient.Do(req)
 	if err != nil {
+		metrics.PrometheusQueriesTotal.WithLabelValues("error").Inc()
+		metrics.ErrorsTotal.WithLabelValues("http_do", "prometheus").Inc()
 		return model.OutputWithError{Err: err}
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
+		metrics.PrometheusQueriesTotal.WithLabelValues("error").Inc()
+		metrics.ErrorsTotal.WithLabelValues("read_body", "prometheus").Inc()
 		return model.OutputWithError{Err: err}
 	}
 	var promResp PrometheusResponse
 	if err := json.Unmarshal(body, &promResp); err != nil {
+		metrics.PrometheusQueriesTotal.WithLabelValues("error").Inc()
+		metrics.ErrorsTotal.WithLabelValues("json_unmarshal", "prometheus").Inc()
 		return model.OutputWithError{Err: err}
 	}
-	var metrics []model.ImageMetric
+	var imageMetrics []model.ImageMetric
 	for _, r := range promResp.Data.Result {
 		image_spec := r.Metric["image_spec"]
 		if image_spec == "" {
@@ -126,8 +135,13 @@ func (integration PrometheusIntegration) FetchImageMetrics(_ any) model.OutputWi
 			labels[k] = v
 		}
 		if image_spec != "" {
-			metrics = append(metrics, model.ImageMetric{Image_spec: image_spec, Labels: labels})
+			imageMetrics = append(imageMetrics, model.ImageMetric{Image_spec: image_spec, Labels: labels})
 		}
 	}
-	return model.OutputWithError{Result: metrics}
+	
+	// Record successful query and number of images processed
+	metrics.PrometheusQueriesTotal.WithLabelValues("success").Inc()
+	metrics.ImagesProcessedTotal.Add(float64(len(imageMetrics)))
+	
+	return model.OutputWithError{Result: imageMetrics}
 }
