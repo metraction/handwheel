@@ -25,10 +25,10 @@ imageHandlerConfig:
     projects: 
     - connection_id: 2
       images:     
-        - ghcr.io\/tiktai\/dora-badge.*
+        - ghcr.io\/metraction\/dora-badge.*
     - connection_id: 3
       images:     
-        - ghcr.io\/tiktai\/handler.*
+        - ghcr.io\/metraction\/handwheel.*
     - connection_id: 4
       images:     
         - ghcr.io\/metraction\/pharos.*
