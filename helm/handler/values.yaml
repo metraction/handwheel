@@ -6,17 +6,13 @@ ca_root_pem: |
   -----END CERTIFICATE-----
 imageHandlerConfig:
   prometheus:
-    url: https://prometheus.enpace.local
-    # url: http://localhost:9090
+    url: http://localhost:9090
     interval: 5m
   crane:
     registries:
       - registry: ghcr.io
         username: "$GHCR_USERNAME"
         password: "$GHCR_PASSWORD"
-      - registry: registry.enpace.local
-        username: "$ENPACE_REGISTRY_USERNAME"
-        password: "$ENPACE_REGISTRY_PASSWORD"
   httpServer:
     port: 8081
   devlake:
@@ -50,7 +46,6 @@ imagePullSecrets:
 # List of secrets to load as environment variables in the container
 envSecrets:
   - github-registry-secret
-  - enpace-registry-secret
   - devlake-token-secret
 
 # This is to override the chart name.
