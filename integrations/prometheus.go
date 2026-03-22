@@ -6,7 +6,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"net/url"
 	"strings"
 
 	"github.com/metraction/handwheel/model"
@@ -89,7 +88,7 @@ func (integration PrometheusIntegration) FetchImageMetrics(_ any) model.OutputWi
 	if integration.config.Query == "" {
 		integration.config.Query = "kube_pod_container_info" // Default query if not specified
 	}
-	url := fmt.Sprintf("%s/api/v1/query?query=%s", integration.config.URL, url.QueryEscape(integration.config.Query))
+	url := fmt.Sprintf("%s/api/v1/query?query=%s", integration.config.URL, integration.config.Query)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return model.OutputWithError{Err: err}
